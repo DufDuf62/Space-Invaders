@@ -2,4 +2,13 @@ canvas
 {
 	border-color: green;
 	border: solid;
+	background-image: url(gfx/invadersBackground.jpg);
+}
+#canvasContainer {
+	width: 100%;
+	text-align:center;
+}
+body
+{
+	background-color: black;
 }

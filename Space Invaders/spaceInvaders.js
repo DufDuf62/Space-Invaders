@@ -29,10 +29,11 @@ var revx = false;
 var reload = true;
 var youWin = 0;
 var keyState = {};
-var pause = true;
+var pause = false;
 var ripost;
 var who;
 var lifeShip = 5;
+var moveAnim = false;
 creaInvaders = function () {
 	"use strict";
 	canvas = document.getElementById('canvas');
@@ -92,7 +93,7 @@ inGame = function () {
 		}
 		if (800 - objInvaders[j].x - 40 < 10) {
 			for (w = 0; w < objInvaders.length; w += 1) {
-				if (!pause) {
+				if (!pause && moveAnim) {
 					objInvaders[w].y += 5;
 				}
 				if (objInvaders[w].y > yShip - 20 && objInvaders[w].life) {
@@ -102,13 +103,13 @@ inGame = function () {
 			revx = false;
 		} else if (objInvaders[j].x < 10) {
 			for (w = 0; w < objInvaders.length; w += 1) {
-				if (!pause) {
+				if (!pause && moveAnim) {
 					objInvaders[w].y += 5;
 				}
 			}
 			revx = true;
 		}
-		if (!pause) {
+		if (!pause && moveAnim) {
 			if (revx) {
 				objInvaders[j].x += 2;
 			} else {
@@ -119,7 +120,7 @@ inGame = function () {
 	for (m = 0; m < objProjectile.length; m += 1) {
 		if (!objProjectile[m].touch) {
 			scene.drawImage(projectile, objProjectile[m].x, objProjectile[m].y, 5, 10);
-			if (!pause) {
+			if (!pause && moveAnim) {
 				if (objProjectile[m].rev) {
 					objProjectile[m].y -= 5;
 				} else {
@@ -128,7 +129,7 @@ inGame = function () {
 			}
 		}
 	}
-	if (keyState[70] && reload && !pause) {
+	if (keyState[70] && reload && !pause && moveAnim) {
 		xProject = xShip + 25;
 		yProject = yShip;
 		touch = false;
@@ -137,7 +138,7 @@ inGame = function () {
 		reload = false;
 		setTimeout(reloadShoot, 100);
 	}
-	if (!pause) {
+	if (!pause && moveAnim) {
 		ripost = Math.floor(Math.random() * 10);
 		if (ripost === 1) {
 			who = Math.floor(Math.random() * 90);
@@ -179,9 +180,11 @@ inGame = function () {
 	}
 	if (keyState[80]) {
 		pause = true;
+		moveAnim = false;
 	}
 	if (keyState[32]) {
 		pause = false;
+		moveAnim = true;
 	}
 	setTimeout(inGame, 10);
 };
