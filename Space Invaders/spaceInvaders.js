@@ -23,13 +23,16 @@ var objInvaders = [];
 var objProjectile = [];
 var Projectiles;
 var xInvader, yInvader, life;
-var xProject, yProject, touch;
+var xProject, yProject, touch, rev;
 var j, m, w;
 var revx = false;
 var reload = true;
 var youWin = 0;
 var keyState = {};
 var pause = true;
+var ripost;
+var who;
+var lifeShip = 5;
 creaInvaders = function () {
 	"use strict";
 	canvas = document.getElementById('canvas');
@@ -52,10 +55,11 @@ creaInvaders = function () {
 
 creaProjectile = function () {
 	"use strict";
-	Projectiles = function (xProject, yProject, touch) {
+	Projectiles = function (xProject, yProject, touch, rev) {
 		this.x = xProject;
 		this.y = yProject;
 		this.touch = touch;
+		this.rev = rev;
 	};
 };
 window.addEventListener('keydown', function (e) {
@@ -116,17 +120,35 @@ inGame = function () {
 		if (!objProjectile[m].touch) {
 			scene.drawImage(projectile, objProjectile[m].x, objProjectile[m].y, 5, 10);
 			if (!pause) {
-				objProjectile[m].y -= 5;
+				if (objProjectile[m].rev) {
+					objProjectile[m].y -= 5;
+				} else {
+					objProjectile[m].y += 5;
+				}
 			}
 		}
 	}
-	if (keyState[70] && reload) {
+	if (keyState[70] && reload && !pause) {
 		xProject = xShip + 25;
 		yProject = yShip;
 		touch = false;
-		objProjectile.push(new Projectiles(xProject, yProject, touch));
+		rev = true;
+		objProjectile.push(new Projectiles(xProject, yProject, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 100);
+	}
+	if (!pause) {
+		ripost = Math.floor(Math.random() * 10);
+		if (ripost === 1) {
+			who = Math.floor(Math.random() * 90);
+			xProject = objInvaders[who].x + 20;
+			yProject = objInvaders[who].y + 40;
+			touch = false;
+			rev = false;
+			if (objInvaders[who].life) {
+				objProjectile.push(new Projectiles(xProject, yProject, touch, rev));
+			}
+		}
 	}
 	if (keyState[39] && !pause) {
 		xShip += 10;
@@ -138,12 +160,19 @@ inGame = function () {
 	} else if (xShip > 750) {
 		xShip = 750;
 	}
+	if (lifeShip <= 0) {
+		location.reload();
+	}
 	for (j = 0; j < objInvaders.length; j += 1) {
 		for (m = 0; m < objProjectile.length; m += 1) {
 			if (objInvaders[j].life && !objProjectile[m].touch) {
-				if (objProjectile[m].x + 5 > objInvaders[j].x && objProjectile[m].x < objInvaders[j].x + 40 && objProjectile[m].y < objInvaders[j].y + 40 && objProjectile[m].y + 10 > objInvaders[j].y + 40 && objProjectile[m].y - 10 < objInvaders[j].y + 40) {
+				if (objProjectile[m].x + 5 > objInvaders[j].x && objProjectile[m].x < objInvaders[j].x + 40 && objProjectile[m].y < objInvaders[j].y + 40 && objProjectile[m].y + 10 > objInvaders[j].y + 40 && objProjectile[m].y - 10 < objInvaders[j].y + 40 && objProjectile[m].rev) {
 					objProjectile[m].touch = true;
 					objInvaders[j].life = false;
+				}
+				if (objProjectile[m].x + 5 > xShip && objProjectile[m].x < xShip + 50 && objProjectile[m].y + 10 > yShip && objProjectile[m].y + 20 > yShip && objProjectile[m].y < yShip && !objProjectile[m].rev) {
+					objProjectile[m].touch = true;
+					lifeShip -= 1;
 				}
 			}
 		}
