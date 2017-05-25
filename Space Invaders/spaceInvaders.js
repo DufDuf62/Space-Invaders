@@ -7,6 +7,7 @@ var creaInvaders;
 var creaProjectile;
 var reloadShoot;
 var reset;
+var timer;
 
 //Variables Ship
 var ship = new Image();
@@ -72,6 +73,11 @@ var drawPowerup = false;
 var alreadyPower = false;
 var machineGun = false;
 
+//Variables Timer
+var seconde;
+var compte;
+var clock;
+
 //Variables structure du code
 var j, m, w;
 var youWin = 0;
@@ -125,6 +131,21 @@ reloadShoot = function () {
 	reload = true;
 };
 
+timer = function () {
+	"use strict";
+	if (clock) {
+		if (!pause) {
+			seconde -= 1;
+		}
+		compte = setTimeout(timer, 1000);
+		if (seconde === 0) {
+			powerup = Math.floor((Math.random() * 100) + 1);
+			reset();
+			clock = false;
+		}
+	}
+};
+
 reset = function () {
 	"use strict";
 	machineGun = false;
@@ -139,7 +160,9 @@ inGame = function () {
 	youWin = 0;
 	if (drawPowerup) {
 		scene.drawImage(capsImg, xCaps, yCaps, capsImg.width, capsImg.height);
-		yCaps += 3;
+		if (!pause) {
+			yCaps += 3;
+		}
 	}
 	for (j = 0; j < objInvaders.length; j += 1) {
 		if (!objInvaders[j].life) {
@@ -211,7 +234,7 @@ inGame = function () {
 		reload = false;
 		setTimeout(reloadShoot, 100);
 	} else if (keyState[70] && reload && !pause && moveAnim && machineGun) {
-		angle = Math.random() * 2.35 + 0.79;
+		angle = Math.random() * 2.35 + 0.30;
 		xProject = xShip + 25;
 		yProject = yShip;
 		xPasProject = Math.cos(angle) * 7.07;
@@ -260,7 +283,7 @@ inGame = function () {
 					if (pattern[j] <= 0) {
 						objInvaders[j].life = false;
 						powerup = Math.floor(Math.random() * 100);
-						if (powerup <= 100 && !drawPowerup && !alreadyPower) {
+						if (powerup <= 20 && !drawPowerup && !alreadyPower) {
 							xCaps = objInvaders[j].x + 15;
 							yCaps = objInvaders[j].y + 40;
 							drawPowerup = true;
@@ -275,13 +298,22 @@ inGame = function () {
 		}
 	}
 	if (xCaps + 10 > xShip && xCaps < xShip + 50 && yCaps + 10 > yShip && yCaps + 15 > yShip && yCaps - 15 < yShip) {
+		xCaps = 900;
+		yCaps = 900;
 		drawPowerup = false;
 		alreadyPower = true;
 		whatPower = Math.floor(Math.random() * 100);
 		if (whatPower <= 100) {
 			machineGun = true;
-			setTimeout(1000, reset);
+			seconde = 5;
+			clock = true;
+			timer();
 		}
+	}
+	if (yCaps > 800) {
+		powerup = Math.floor(Math.random() * 100);
+		whatPower = Math.floor(Math.random() * 100);
+		drawPowerup = false;
 	}
 	if (keyState[80]) {
 		pause = true;
