@@ -72,6 +72,9 @@ var xCaps, yCaps;
 var drawPowerup = false;
 var alreadyPower = false;
 var machineGun = false;
+var defense = false;
+var doubleFire = false;
+var freeMove = false;
 
 //Variables Timer
 var seconde;
@@ -79,7 +82,7 @@ var compte;
 var clock;
 
 //Variables structure du code
-var j, m, w;
+var j, m, w, z;
 var youWin = 0;
 var keyState = {};
 var pause = false;
@@ -148,7 +151,20 @@ timer = function () {
 
 reset = function () {
 	"use strict";
-	machineGun = false;
+	if (machineGun) {
+		machineGun = false;
+	}
+	if (defense) {
+		defense = false;
+		ship.src = "gfx/ship.png";
+	}
+	if (doubleFire) {
+		doubleFire = false;
+	}
+	if (freeMove) {
+		freeMove = false;
+		yShip = 725;
+	}
 	alreadyPower = false;
 	whatPower = Math.floor(Math.random() * 100);
 };
@@ -222,7 +238,7 @@ inGame = function () {
 			}
 		}
 	}
-	if (keyState[70] && reload && !pause && moveAnim && !machineGun) {
+	if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire) {
 		angle = Math.PI / 2;
 		xProject = xShip + 25;
 		yProject = yShip;
@@ -233,7 +249,7 @@ inGame = function () {
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 100);
-	} else if (keyState[70] && reload && !pause && moveAnim && machineGun) {
+	} else if (keyState[70] && reload && !pause && moveAnim && machineGun && !doubleFire) {
 		angle = Math.random() * 2.35 + 0.30;
 		xProject = xShip + 25;
 		yProject = yShip;
@@ -244,6 +260,19 @@ inGame = function () {
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 50);
+	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && doubleFire) {
+		for (z = 0; z < 2; z += 1) {
+			angle = Math.PI / 2;
+			xProject = xShip + 9 + z * 32;
+			yProject = yShip;
+			xPasProject = Math.cos(angle) * 7.07;
+			yPasProject = Math.sin(angle) * 7.07;
+			touch = false;
+			rev = true;
+			objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+		}
+		reload = false;
+		setTimeout(reloadShoot, 100);
 	}
 	if (!pause && moveAnim) {
 		ripost = Math.floor(Math.random() * 10);
@@ -266,10 +295,20 @@ inGame = function () {
 	} else if (keyState[37] && !pause) {
 		xShip -= 10;
 	}
+	if (keyState[38] && !pause && freeMove) {
+		yShip -= 10;
+	} else if (keyState[40] && !pause && freeMove) {
+		yShip += 10;
+	}
 	if (xShip < 0) {
 		xShip = 0;
 	} else if (xShip > 750) {
 		xShip = 750;
+	}
+	if (yShip < 0) {
+		yShip = 0;
+	} else if (yShip > 750) {
+		yShip = 750;
 	}
 	if (lifeShip <= 0) {
 		location.reload();
@@ -292,20 +331,40 @@ inGame = function () {
 				}
 				if (objProjectile[m].x + 2 > xShip && objProjectile[m].x < xShip + 50 && objProjectile[m].y + 6 > yShip && objProjectile[m].y + 16 > yShip && objProjectile[m].y - 4 < yShip && !objProjectile[m].rev) {
 					objProjectile[m].touch = true;
-					lifeShip -= 1;
+					if (!defense) {
+						lifeShip -= 1;
+					}
 				}
 			}
 		}
 	}
-	if (xCaps + 10 > xShip && xCaps < xShip + 50 && yCaps + 10 > yShip && yCaps + 15 > yShip && yCaps - 15 < yShip) {
+	if ((xCaps + 10 > xShip && xCaps < xShip + 50 && yCaps + 10 > yShip && yCaps + 15 > yShip && yCaps - 15 < yShip) ||
+			((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps + 10 > xShip && xCaps + 20 > xShip && xCaps < xShip)) ||
+			((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps < xShip + 50 && xCaps + 10 > xShip + 50 && xCaps - 10 < xShip + 50))) {
 		xCaps = 900;
 		yCaps = 900;
 		drawPowerup = false;
 		alreadyPower = true;
 		whatPower = Math.floor(Math.random() * 100);
-		if (whatPower <= 100) {
+		if (whatPower <= 25) {
 			machineGun = true;
 			seconde = 5;
+			clock = true;
+			timer();
+		} else if (whatPower > 25 && whatPower <= 50) {
+			defense = true;
+			ship.src = "gfx/invincibleShip.png";
+			seconde = 10;
+			clock = true;
+			timer();
+		} else if (whatPower > 50 && whatPower <= 75) {
+			doubleFire = true;
+			seconde = 10;
+			clock = true;
+			timer();
+		} else if (whatPower >  75) {
+			freeMove = true;
+			seconde = 10;
 			clock = true;
 			timer();
 		}
