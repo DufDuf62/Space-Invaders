@@ -1,45 +1,90 @@
 /*global alert: false*/
+//Fonctions
 var canvas;
 var scene;
 var inGame;
 var creaInvaders;
 var creaProjectile;
 var reloadShoot;
+var reset;
+
+//Variables Ship
 var ship = new Image();
 ship.src = "gfx/ship.png";
 ship.width = 50;
 ship.height = 50;
 var xShip = 475;
 var yShip = 725;
+var lifeShip = 2;
+var reload = true;
+
+//Variables Invaders
 var invaders = new Image();
 invaders.src = "gfx/invaders.png";
 invaders.width = 40;
 invaders.height = 40;
-var projectile = new Image();
-projectile.src = "gfx/projectile.png";
-projectile.width = 5;
-projectile.heigth = 10;
+var invaders2 = new Image();
+invaders2.src = "gfx/invaders2.png";
+invaders2.width = 40;
+invaders2.height = 40;
 var objInvaders = [];
+var xInvader, yInvader, life;
+var revx = false;
+var who;
+var ripost;
+var pattern = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+
+var app = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+
+//Variables Projectile
+var projectileInvImg = new Image();
+projectileInvImg.src = "gfx/projectileInvaders.png";
+projectileInvImg.width = 2;
+projectileInvImg.heigth = 6;
+var projectileShipImg = new Image();
+projectileShipImg.src = "gfx/projectileShip.png";
+projectileShipImg.width = 2;
+projectileShipImg.heigth = 6;
 var objProjectile = [];
 var Projectiles;
-var xInvader, yInvader, life;
-var xProject, yProject, touch, rev;
+var xProject, yProject, xPasProject, yPasProject, angle, touch, rev;
+
+//Variables Powerups
+var capsImg = new Image();
+capsImg.src = "gfx/capsImg.png";
+capsImg.width = 10;
+capsImg.height = 5;
+var powerup, whatPower;
+var xCaps, yCaps;
+var drawPowerup = false;
+var alreadyPower = false;
+var machineGun = false;
+
+//Variables structure du code
 var j, m, w;
-var revx = false;
-var reload = true;
 var youWin = 0;
 var keyState = {};
 var pause = false;
-var ripost;
-var who;
-var lifeShip = 5;
 var moveAnim = false;
+
 creaInvaders = function () {
 	"use strict";
 	canvas = document.getElementById('canvas');
 	scene = canvas.getContext("2d");
 
-	var k, l, Invader = function (xInvader, yInvader, life) {
+	var k, l, n, Invader = function (xInvader, yInvader, life) {
 		this.x = xInvader;
 		this.y = yInvader;
 		this.life = life;
@@ -56,9 +101,12 @@ creaInvaders = function () {
 
 creaProjectile = function () {
 	"use strict";
-	Projectiles = function (xProject, yProject, touch, rev) {
+	Projectiles = function (xProject, yProject, xPasProject, yPasProject, angle, touch, rev) {
 		this.x = xProject;
 		this.y = yProject;
+		this.xPas = xPasProject;
+		this.yPas = yPasProject;
+		this.angle = angle;
 		this.touch = touch;
 		this.rev = rev;
 	};
@@ -76,11 +124,23 @@ reloadShoot = function () {
 	"use strict";
 	reload = true;
 };
+
+reset = function () {
+	"use strict";
+	machineGun = false;
+	alreadyPower = false;
+	whatPower = Math.floor(Math.random() * 100);
+};
+
 inGame = function () {
 	"use strict";
 	scene.clearRect(0, 0, 800, 800);
 	scene.drawImage(ship, xShip, yShip, ship.width, ship.height);
 	youWin = 0;
+	if (drawPowerup) {
+		scene.drawImage(capsImg, xCaps, yCaps, capsImg.width, capsImg.height);
+		yCaps += 3;
+	}
 	for (j = 0; j < objInvaders.length; j += 1) {
 		if (!objInvaders[j].life) {
 			youWin += 1;
@@ -89,19 +149,23 @@ inGame = function () {
 			alert("You Win");
 		}
 		if (objInvaders[j].life) {
-			scene.drawImage(invaders, objInvaders[j].x, objInvaders[j].y, 40, 40);
+			if (app[j] === 2) {
+				scene.drawImage(invaders2, objInvaders[j].x, objInvaders[j].y, 40, 40);
+			} else if (app[j] === 1) {
+				scene.drawImage(invaders, objInvaders[j].x, objInvaders[j].y, 40, 40);
+			}
 		}
-		if (800 - objInvaders[j].x - 40 < 10) {
+		if (800 - objInvaders[j].x - 40 < 10 && objInvaders[j].life) {
 			for (w = 0; w < objInvaders.length; w += 1) {
 				if (!pause && moveAnim) {
 					objInvaders[w].y += 5;
 				}
-				if (objInvaders[w].y > yShip - 20 && objInvaders[w].life) {
+				if (objInvaders[w].y + 40 > yShip - 20 && objInvaders[w].life) {
 					location.reload();
 				}
 			}
 			revx = false;
-		} else if (objInvaders[j].x < 10) {
+		} else if (objInvaders[j].x < 10 && objInvaders[j].life) {
 			for (w = 0; w < objInvaders.length; w += 1) {
 				if (!pause && moveAnim) {
 					objInvaders[w].y += 5;
@@ -119,35 +183,58 @@ inGame = function () {
 	}
 	for (m = 0; m < objProjectile.length; m += 1) {
 		if (!objProjectile[m].touch) {
-			scene.drawImage(projectile, objProjectile[m].x, objProjectile[m].y, 5, 10);
+			if (!objProjectile[m].rev) {
+				scene.drawImage(projectileInvImg, objProjectile[m].x, objProjectile[m].y, projectileInvImg.width, projectileInvImg.height);
+			} else {
+				scene.drawImage(projectileShipImg, objProjectile[m].x, objProjectile[m].y, projectileShipImg.width, projectileShipImg.height);
+			}
 			if (!pause && moveAnim) {
 				if (objProjectile[m].rev) {
-					objProjectile[m].y -= 5;
+					objProjectile[m].x -= objProjectile[m].xPas;
+					objProjectile[m].y -= objProjectile[m].yPas;
 				} else {
-					objProjectile[m].y += 5;
+					objProjectile[m].x += objProjectile[m].xPas;
+					objProjectile[m].y += objProjectile[m].yPas;
 				}
 			}
 		}
 	}
-	if (keyState[70] && reload && !pause && moveAnim) {
+	if (keyState[70] && reload && !pause && moveAnim && !machineGun) {
+		angle = Math.PI / 2;
 		xProject = xShip + 25;
 		yProject = yShip;
+		xPasProject = Math.cos(angle) * 7.07;
+		yPasProject = Math.sin(angle) * 7.07;
 		touch = false;
 		rev = true;
-		objProjectile.push(new Projectiles(xProject, yProject, touch, rev));
+		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 100);
+	} else if (keyState[70] && reload && !pause && moveAnim && machineGun) {
+		angle = Math.random() * 2.35 + 0.79;
+		xProject = xShip + 25;
+		yProject = yShip;
+		xPasProject = Math.cos(angle) * 7.07;
+		yPasProject = Math.sin(angle) * 7.07;
+		touch = false;
+		rev = true;
+		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+		reload = false;
+		setTimeout(reloadShoot, 50);
 	}
 	if (!pause && moveAnim) {
 		ripost = Math.floor(Math.random() * 10);
 		if (ripost === 1) {
 			who = Math.floor(Math.random() * 90);
+			angle = Math.PI / 2;
 			xProject = objInvaders[who].x + 20;
 			yProject = objInvaders[who].y + 40;
+			xPasProject = Math.abs(Math.cos(angle) * 7.07);
+			yPasProject = Math.abs(Math.sin(angle) * 7.07);
 			touch = false;
 			rev = false;
 			if (objInvaders[who].life) {
-				objProjectile.push(new Projectiles(xProject, yProject, touch, rev));
+				objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 			}
 		}
 	}
@@ -167,15 +254,33 @@ inGame = function () {
 	for (j = 0; j < objInvaders.length; j += 1) {
 		for (m = 0; m < objProjectile.length; m += 1) {
 			if (objInvaders[j].life && !objProjectile[m].touch) {
-				if (objProjectile[m].x + 5 > objInvaders[j].x && objProjectile[m].x < objInvaders[j].x + 40 && objProjectile[m].y < objInvaders[j].y + 40 && objProjectile[m].y + 10 > objInvaders[j].y + 40 && objProjectile[m].y - 10 < objInvaders[j].y + 40 && objProjectile[m].rev) {
+				if (objProjectile[m].x + 2 > objInvaders[j].x && objProjectile[m].x < objInvaders[j].x + 40 && objProjectile[m].y < objInvaders[j].y + 40 && objProjectile[m].y + 10 > objInvaders[j].y + 40 && objProjectile[m].y - 10 < objInvaders[j].y + 40 && objProjectile[m].rev) {
 					objProjectile[m].touch = true;
-					objInvaders[j].life = false;
+					pattern[j] -= 1;
+					if (pattern[j] <= 0) {
+						objInvaders[j].life = false;
+						powerup = Math.floor(Math.random() * 100);
+						if (powerup <= 100 && !drawPowerup && !alreadyPower) {
+							xCaps = objInvaders[j].x + 15;
+							yCaps = objInvaders[j].y + 40;
+							drawPowerup = true;
+						}
+					}
 				}
-				if (objProjectile[m].x + 5 > xShip && objProjectile[m].x < xShip + 50 && objProjectile[m].y + 10 > yShip && objProjectile[m].y + 20 > yShip && objProjectile[m].y < yShip && !objProjectile[m].rev) {
+				if (objProjectile[m].x + 2 > xShip && objProjectile[m].x < xShip + 50 && objProjectile[m].y + 6 > yShip && objProjectile[m].y + 16 > yShip && objProjectile[m].y - 4 < yShip && !objProjectile[m].rev) {
 					objProjectile[m].touch = true;
 					lifeShip -= 1;
 				}
 			}
+		}
+	}
+	if (xCaps + 10 > xShip && xCaps < xShip + 50 && yCaps + 10 > yShip && yCaps + 15 > yShip && yCaps - 15 < yShip) {
+		drawPowerup = false;
+		alreadyPower = true;
+		whatPower = Math.floor(Math.random() * 100);
+		if (whatPower <= 100) {
+			machineGun = true;
+			setTimeout(1000, reset);
 		}
 	}
 	if (keyState[80]) {
