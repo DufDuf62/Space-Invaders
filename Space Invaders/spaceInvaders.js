@@ -75,6 +75,7 @@ var machineGun = false;
 var defense = false;
 var doubleFire = false;
 var freeMove = false;
+var aimFire = true;
 
 //Variables Timer
 var seconde;
@@ -87,7 +88,7 @@ var youWin = 0;
 var keyState = {};
 var pause = false;
 var moveAnim = false;
-
+var xMouse, yMouse;
 creaInvaders = function () {
 	"use strict";
 	canvas = document.getElementById('canvas');
@@ -149,6 +150,12 @@ timer = function () {
 	}
 };
 
+function souris(event) {
+	"use strict";
+	xMouse = event.clientX,
+		yMouse = event.clientY;
+}
+
 reset = function () {
 	"use strict";
 	if (machineGun) {
@@ -174,6 +181,7 @@ inGame = function () {
 	scene.clearRect(0, 0, 800, 800);
 	scene.drawImage(ship, xShip, yShip, ship.width, ship.height);
 	youWin = 0;
+	console.log(xMouse);
 	if (drawPowerup) {
 		scene.drawImage(capsImg, xCaps, yCaps, capsImg.width, capsImg.height);
 		if (!pause) {
@@ -238,7 +246,7 @@ inGame = function () {
 			}
 		}
 	}
-	if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire) {
+	if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire && !aimFire) {
 		angle = Math.PI / 2;
 		xProject = xShip + 25;
 		yProject = yShip;
@@ -249,7 +257,7 @@ inGame = function () {
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 100);
-	} else if (keyState[70] && reload && !pause && moveAnim && machineGun && !doubleFire) {
+	} else if (keyState[70] && reload && !pause && moveAnim && machineGun && !doubleFire && !aimFire) {
 		angle = Math.random() * 2.35 + 0.30;
 		xProject = xShip + 25;
 		yProject = yShip;
@@ -260,7 +268,7 @@ inGame = function () {
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 50);
-	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && doubleFire) {
+	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && doubleFire && !aimFire) {
 		for (z = 0; z < 2; z += 1) {
 			angle = Math.PI / 2;
 			xProject = xShip + 9 + z * 32;
@@ -271,6 +279,17 @@ inGame = function () {
 			rev = true;
 			objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		}
+		reload = false;
+		setTimeout(reloadShoot, 100);
+	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire && aimFire) {
+		angle = 0;
+		xProject = xShip + 25;
+		yProject = yShip;
+		xPasProject = -(xMouse - xShip - 500) / 10;
+		yPasProject = -(yMouse - yShip - 500) / 10;
+		touch = false;
+		rev = true;
+		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 100);
 	}
@@ -339,8 +358,8 @@ inGame = function () {
 		}
 	}
 	if ((xCaps + 10 > xShip && xCaps < xShip + 50 && yCaps + 10 > yShip && yCaps + 15 > yShip && yCaps - 15 < yShip) ||
-			((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps + 10 > xShip && xCaps + 20 > xShip && xCaps < xShip)) ||
-			((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps < xShip + 50 && xCaps + 10 > xShip + 50 && xCaps - 10 < xShip + 50))) {
+		((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps + 10 > xShip && xCaps + 20 > xShip && xCaps < xShip)) ||
+		((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps < xShip + 50 && xCaps + 10 > xShip + 50 && xCaps - 10 < xShip + 50))) {
 		xCaps = 900;
 		yCaps = 900;
 		drawPowerup = false;
@@ -362,8 +381,13 @@ inGame = function () {
 			seconde = 10;
 			clock = true;
 			timer();
-		} else if (whatPower >  75) {
+		} else if (whatPower > 75) {
 			freeMove = true;
+			seconde = 10;
+			clock = true;
+			timer();
+		} else if (whatPower > 100) {
+			aimFire = true;
 			seconde = 10;
 			clock = true;
 			timer();
