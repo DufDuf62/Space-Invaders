@@ -77,6 +77,8 @@ var machineGun = false;
 var defense = false;
 var doubleFire = false;
 var freeMove = false;
+var shotgun = false;
+var shotgunShoot;
 
 //Variables Timer
 var seconde;
@@ -84,7 +86,7 @@ var compte;
 var clock;
 
 //Variables structure du code
-var j, m, w, z;
+var j, m, w, z, c;
 var youWin = 0;
 var keyState = {};
 var pause = false;
@@ -293,7 +295,7 @@ inGame = function () {
 			}
 		}
 	}
-	if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire) {
+	if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire && !shotgun) {
 		angle = Math.PI / 2;
 		xProject = xShip + 25;
 		yProject = yShip;
@@ -304,7 +306,7 @@ inGame = function () {
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 100);
-	} else if (keyState[70] && reload && !pause && moveAnim && machineGun && !doubleFire) {
+	} else if (keyState[70] && reload && !pause && moveAnim && machineGun && !doubleFire && !shotgun) {
 		angle = Math.random() * 2.35 + 0.30;
 		xProject = xShip + 25;
 		yProject = yShip;
@@ -315,7 +317,7 @@ inGame = function () {
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 50);
-	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && doubleFire) {
+	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && doubleFire && !shotgun) {
 		for (z = 0; z < 2; z += 1) {
 			angle = Math.PI / 2;
 			xProject = xShip + 9 + z * 32;
@@ -328,6 +330,25 @@ inGame = function () {
 		}
 		reload = false;
 		setTimeout(reloadShoot, 100);
+	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire && shotgun) {
+		for (c = 0; c < 1.57; c += 0.1) {
+			angle = Math.PI / 4 + c;
+			xProject = xShip + 25;
+			yProject = yShip;
+			xPasProject = Math.cos(angle) * 7.07;
+			yPasProject = Math.sin(angle) * 7.07;
+			touch = false;
+			rev = true;
+			objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+		}
+		shotgunShoot -= 1;
+		if (shotgunShoot === 0) {
+			shotgun = false;
+			powerup = Math.floor(Math.random() * 100);
+			whatPower = Math.floor(Math.random() * 100);
+		}
+		reload = false;
+		setTimeout(reloadShoot, 500);
 	}
 	if (!pause && moveAnim) {
 		ripost = Math.floor(Math.random() * 10);
@@ -401,24 +422,30 @@ inGame = function () {
 		drawPowerup = false;
 		alreadyPower = true;
 		whatPower = Math.floor(Math.random() * 100);
-		if (whatPower <= 25) {
+		if (whatPower <= 20) {
 			machineGun = true;
 			seconde = 5;
 			clock = true;
 			timer();
-		} else if (whatPower > 25 && whatPower <= 50) {
+		} else if (whatPower > 20 && whatPower <= 40) {
 			defense = true;
 			ship.src = "gfx/invincibleShip.png";
 			seconde = 10;
 			clock = true;
 			timer();
-		} else if (whatPower > 50 && whatPower <= 75) {
+		} else if (whatPower > 40 && whatPower <= 60) {
 			doubleFire = true;
 			seconde = 10;
 			clock = true;
 			timer();
-		} else if (whatPower > 75) {
+		} else if (whatPower > 60 && whatPower <= 80) {
 			freeMove = true;
+			seconde = 10;
+			clock = true;
+			timer();
+		} else if (whatPower > 80) {
+			shotgun = true;
+			shotgunShoot = 5;
 			seconde = 10;
 			clock = true;
 			timer();

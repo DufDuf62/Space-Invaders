@@ -30,26 +30,31 @@ var invaders2 = new Image();
 invaders2.src = "gfx/invaders2.png";
 invaders2.width = 40;
 invaders2.height = 40;
+var barriereImg = new Image();
+barriereImg.src = "gfx/barriere.png";
+barriereImg.width = 800;
+barriereImg.height = 5;
+var protectAlive = true;
 var objInvaders = [];
 var xInvader, yInvader, life;
 var revx = false;
 var who;
 var ripost;
 var pattern = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+			   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+			   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+			   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+			   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 var app = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+		   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+		   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+	       2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+		   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 //Variables Projectile
 var projectileInvImg = new Image();
@@ -179,6 +184,7 @@ start = function () {
 	"use strict";
 	scene.clearRect(0, 0, 800, 800);
 	scene.drawImage(ship, xShip, yShip, ship.width, ship.height);
+	scene.drawImage(barriereImg, 0, 280, barriereImg.width, barriereImg.height);
 	for (j = 0; j < objInvaders.length; j += 1) {
 		if (objInvaders[j].life) {
 			if (app[j] === 2) {
@@ -220,7 +226,7 @@ end = function () {
 	}
 	yShip -= 3;
 	if (yShip <= -60) {
-		location.reload();
+		location.replace("../level 2/level2.html");
 	}
 	endGame = setTimeout(end, 10);
 };
@@ -229,6 +235,9 @@ inGame = function () {
 	"use strict";
 	scene.clearRect(0, 0, 800, 800);
 	scene.drawImage(ship, xShip, yShip, ship.width, ship.height);
+	if (protectAlive) {
+		scene.drawImage(barriereImg, 0, 280, barriereImg.width, barriereImg.height);
+	}
 	youWin = 0;
 	if (drawPowerup) {
 		scene.drawImage(capsImg, xCaps, yCaps, capsImg.width, capsImg.height);
@@ -252,32 +261,33 @@ inGame = function () {
 			}
 		}
 		if (800 - objInvaders[j].x - 40 < 10 && objInvaders[j].life) {
-			for (w = 0; w < objInvaders.length - 13; w += 1) {
+			for (w = 0; w < objInvaders.length; w += 1) {
 				if (!pause && moveAnim) {
-					objInvaders[w].y += 5;
+					if (!protectAlive) {
+						objInvaders[w].y += 5;
+					}
+				}
+				if (objInvaders[w].y + 40 > yShip - 20 && objInvaders[w].life) {
+					location.reload();
 				}
 			}
 			revx = false;
 		} else if (objInvaders[j].x < 10 && objInvaders[j].life) {
-			for (w = 0; w < objInvaders.length - 13; w += 1) {
+			for (w = 0; w < objInvaders.length; w += 1) {
 				if (!pause && moveAnim) {
-					objInvaders[w].y += 5;
+					if (!protectAlive) {
+						objInvaders[w].y += 5;
+					}
 				}
 			}
 			revx = true;
 		}
-		if (j > 77 && !pause && moveAnim) {
-			objInvaders[j].y += 0.75;
-		}
-		if (!pause && moveAnim && j <= 77) {
+		if (!pause && moveAnim && !protectAlive) {
 			if (revx) {
 				objInvaders[j].x += 2;
 			} else {
 				objInvaders[j].x -= 2;
 			}
-		}
-		if (objInvaders[j].y + 40 > yShip - 20 && objInvaders[j].life) {
-			location.reload();
 		}
 	}
 	for (m = 0; m < objProjectile.length; m += 1) {
@@ -356,7 +366,7 @@ inGame = function () {
 	if (!pause && moveAnim) {
 		ripost = Math.floor(Math.random() * 10);
 		if (ripost === 1) {
-			who = Math.floor(Math.random() * 77);
+			who = Math.floor(Math.random() * 90);
 			angle = Math.PI / 2;
 			xProject = objInvaders[who].x + 20;
 			yProject = objInvaders[who].y + 40;
@@ -394,7 +404,7 @@ inGame = function () {
 	}
 	for (j = 0; j < objInvaders.length; j += 1) {
 		for (m = 0; m < objProjectile.length; m += 1) {
-			if (objInvaders[j].life && !objProjectile[m].touch) {
+			if (pattern[j] > 0 && !objProjectile[m].touch) {
 				if (objProjectile[m].x + 2 > objInvaders[j].x && objProjectile[m].x < objInvaders[j].x + 40 && objProjectile[m].y < objInvaders[j].y + 40 && objProjectile[m].y + 10 > objInvaders[j].y + 40 && objProjectile[m].y - 10 < objInvaders[j].y + 40 && objProjectile[m].rev) {
 					objProjectile[m].touch = true;
 					pattern[j] -= 1;
@@ -413,6 +423,9 @@ inGame = function () {
 					if (!defense) {
 						lifeShip -= 1;
 					}
+				}
+				if (protectAlive && objProjectile[m].y < 285 && objProjectile[m].rev) {
+					objProjectile[m].touch = true;
 				}
 			}
 		}
