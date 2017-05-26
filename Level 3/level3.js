@@ -297,6 +297,9 @@ inGame = function () {
 					objProjectile[m].y += objProjectile[m].yPas;
 				}
 			}
+			if (objProjectile[m].y < -10 || objProjectile[m].y > 800) {
+				objProjectile[m].touch = true;
+			}
 		}
 	}
 	if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire && !shotgun) {
