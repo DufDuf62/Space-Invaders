@@ -242,6 +242,7 @@ inGame = function () {
 		}
 		if (youWin === 91) {
 			end();
+			clock = false;
 			return;
 		}
 		if (objInvaders[j].life) {

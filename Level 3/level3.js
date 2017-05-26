@@ -220,7 +220,7 @@ end = function () {
 	}
 	yShip -= 3;
 	if (yShip <= -60) {
-		location.reload();
+		location.replace("../level 4/level4.html");
 	}
 	endGame = setTimeout(end, 10);
 };
@@ -242,6 +242,7 @@ inGame = function () {
 		}
 		if (youWin === 91) {
 			end();
+			clock = false;
 			return;
 		}
 		if (objInvaders[j].life) {
