@@ -101,7 +101,8 @@ capsShotgun.src = "gfx/capsShotgun.png";
 capsShotgun.width = 10;
 capsShotgun.height = 5;
 var powerup, whatPower;
-var xCaps, yCaps;
+var xCaps = -100;
+var yCaps = -100;
 var drawPowerup = false;
 var alreadyPower = false;
 var machineGun = false;
@@ -284,7 +285,7 @@ end = function () {
 	}
 	yShip -= 3;
 	if (yShip <= -60) {
-		location.reload();
+		location.replace("../level 5/level5.html");
 	}
 	endGame = setTimeout(end, 10);
 };
@@ -545,8 +546,8 @@ inGame = function () {
 	if ((xCaps + 10 > xShip && xCaps < xShip + 50 && yCaps + 10 > yShip && yCaps + 15 > yShip && yCaps - 15 < yShip) ||
 			((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps + 10 > xShip && xCaps + 20 > xShip && xCaps < xShip)) ||
 			((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps < xShip + 50 && xCaps + 10 > xShip + 50 && xCaps - 10 < xShip + 50))) {
-		xCaps = 900;
-		yCaps = 900;
+		xCaps = -100;
+		yCaps = -100;
 		drawPowerup = false;
 		alreadyPower = true;
 		whatPower = Math.floor(Math.random() * 100);
