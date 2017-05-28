@@ -80,10 +80,26 @@ var Projectiles;
 var xProject, yProject, xPasProject, yPasProject, angle, touch, rev;
 
 //Variables Powerups
-var capsImg = new Image();
-capsImg.src = "gfx/capsImg.png";
-capsImg.width = 10;
-capsImg.height = 5;
+var capsDef = new Image();
+capsDef.src = "gfx/capsDef.png";
+capsDef.width = 10;
+capsDef.height = 5;
+var capsDoubleFire = new Image();
+capsDoubleFire.src = "gfx/capsDoubleFire.png";
+capsDoubleFire.width = 10;
+capsDoubleFire.height = 5;
+var capsFreeMove = new Image();
+capsFreeMove.src = "gfx/capsFreeMove.png";
+capsFreeMove.width = 10;
+capsFreeMove.height = 5;
+var capsMachineGun = new Image();
+capsMachineGun.src = "gfx/capsMachineGun.png";
+capsMachineGun.width = 10;
+capsMachineGun.height = 5;
+var capsShotgun = new Image();
+capsShotgun.src = "gfx/capsShotgun.png";
+capsShotgun.width = 10;
+capsShotgun.height = 5;
 var powerup, whatPower;
 var xCaps, yCaps;
 var drawPowerup = false;
@@ -303,7 +319,17 @@ inGame = function () {
 		}
 	}
 	if (drawPowerup) {
-		scene.drawImage(capsImg, xCaps, yCaps, capsImg.width, capsImg.height);
+		if (whatPower <= 20) {
+			scene.drawImage(capsMachineGun, xCaps, yCaps, capsMachineGun.width, capsMachineGun.height);
+		} else if (whatPower > 20 && whatPower <= 40) {
+			scene.drawImage(capsDef, xCaps, yCaps, capsDef.width, capsDef.height);
+		} else if (whatPower > 40 && whatPower <= 60) {
+			scene.drawImage(capsDoubleFire, xCaps, yCaps, capsDoubleFire.width, capsDoubleFire.height);
+		} else if (whatPower > 60 && whatPower <= 80) {
+			scene.drawImage(capsFreeMove, xCaps, yCaps, capsFreeMove.width, capsFreeMove.height);
+		} else if (whatPower > 80) {
+			scene.drawImage(capsShotgun, xCaps, yCaps, capsShotgun.width, capsShotgun.height);
+		}
 		if (!pause) {
 			yCaps += 3;
 		}
