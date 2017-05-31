@@ -5,13 +5,12 @@ var scene;
 var inGame;
 var creaInvaders;
 var creaProjectile;
-var creaInvadersProtect;
-var reloadShootShip;
-var reloadShootInvaders;
+var reloadShoot;
 var reset;
 var timer;
 var start;
 var end;
+var forward;
 
 //Variables Ship
 var ship = new Image();
@@ -32,37 +31,26 @@ var invaders2 = new Image();
 invaders2.src = "gfx/invaders2.png";
 invaders2.width = 40;
 invaders2.height = 40;
-var invadersProtect = new Image();
-invadersProtect.src = "gfx/invadersProtect.png";
-invadersProtect.width = 80;
-invadersProtect.height = 80;
-var reloadProject = true;
-var barriereImg = new Image();
-barriereImg.src = "gfx/barriere.png";
-barriereImg.width = 800;
-barriereImg.height = 5;
-var protectAlive = true;
 var objInvaders = [];
 var xInvader, yInvader, life;
-var Protect, xProtect, yProtect, lifeProtect, hp;
-var objProtect = [];
-var protectDead;
 var revx = false;
 var who;
 var ripost;
-var pattern = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-			   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-			   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-			   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-			   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+var march = false;
+var whatInvader = Math.floor(Math.random() * 100);
+var pattern = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+			   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-var app = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-		   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-		   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-	       2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-		   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+var app = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+		   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -118,7 +106,7 @@ var compte;
 var clock;
 
 //Variables structure du code
-var j, m, w, z, c, g;
+var j, m, w, z, c;
 var youWin = 0;
 var keyState = {};
 var pause = false;
@@ -138,7 +126,7 @@ creaInvaders = function () {
 	};
 	for (k = 0; k < 7; k += 1) {
 		for (l = 0; l < 13; l += 1) {
-			xInvader = l * 50 + 100;
+			xInvader = l * 50 + 20;
 			yInvader = k * 50 + 10;
 			life = true;
 			objInvaders.push(new Invader(xInvader, yInvader, life));
@@ -158,33 +146,6 @@ creaProjectile = function () {
 		this.rev = rev;
 	};
 };
-
-creaInvadersProtect = function () {
-	"use strict";
-	Protect = function (xProtect, yProtect, lifeProtect, hp) {
-		this.x = xProtect;
-		this.y = yProtect;
-		this.life = lifeProtect;
-		this.hp = hp;
-	};
-	for (g = 0; g < 2; g += 1) {
-		if (g === 0) {
-			xProtect = 20;
-			yProtect = 290;
-			lifeProtect = true;
-			hp = 40;
-			objProtect.push(new Protect(xProtect, yProtect, lifeProtect, hp));
-		}
-		if (g === 1) {
-			xProtect = 700;
-			yProtect = 290;
-			lifeProtect = true;
-			hp = 40;
-			objProtect.push(new Protect(xProtect, yProtect, lifeProtect, hp));
-		}
-	}
-};
-
 window.addEventListener('keydown', function (e) {
 	"use strict";
 	keyState[e.keyCode || e.which] = true;
@@ -194,14 +155,9 @@ window.addEventListener('keyup', function (e) {
 	keyState[e.keyCode || e.which] = false;
 }, true);
 
-reloadShootShip = function () {
+reloadShoot = function () {
 	"use strict";
 	reload = true;
-};
-
-reloadShootInvaders = function () {
-	"use strict";
-	reloadProject = true;
 };
 
 timer = function () {
@@ -217,6 +173,13 @@ timer = function () {
 			clock = false;
 		}
 	}
+};
+
+forward = function () {
+	"use strict";
+	march = true;
+	whatInvader = Math.floor(Math.random() * 25);
+	setTimeout(forward, 5000);
 };
 
 reset = function () {
@@ -243,10 +206,9 @@ start = function () {
 	"use strict";
 	scene.clearRect(0, 0, 800, 800);
 	scene.drawImage(ship, xShip, yShip, ship.width, ship.height);
-	scene.drawImage(barriereImg, 0, 280, barriereImg.width, barriereImg.height);
 	for (j = 0; j < objInvaders.length; j += 1) {
 		if (objInvaders[j].life) {
-			if (app[j] === 2) {
+			if (app[j] >= 2) {
 				scene.drawImage(invaders2, objInvaders[j].x, objInvaders[j].y, 40, 40);
 			} else if (app[j] === 1) {
 				scene.drawImage(invaders, objInvaders[j].x, objInvaders[j].y, 40, 40);
@@ -259,6 +221,7 @@ start = function () {
 		return;
 	}
 	startGame = setTimeout(start, 10);
+	setTimeout(forward, 5000);
 };
 
 end = function () {
@@ -285,7 +248,7 @@ end = function () {
 	}
 	yShip -= 3;
 	if (yShip <= -60) {
-		location.replace("../level 5/level5.html");
+		location.replace("../level 2/level2.html");
 	}
 	endGame = setTimeout(end, 10);
 };
@@ -294,31 +257,7 @@ inGame = function () {
 	"use strict";
 	scene.clearRect(0, 0, 800, 800);
 	scene.drawImage(ship, xShip, yShip, ship.width, ship.height);
-	if (protectAlive) {
-		scene.drawImage(barriereImg, 0, 280, barriereImg.width, barriereImg.height);
-	}
 	youWin = 0;
-	protectDead = 0;
-	for (g = 0; g < 2; g += 1) {
-		for (m = 0; m < objProjectile.length; m += 1) {
-			if (objProtect[g].life) {
-				scene.drawImage(invadersProtect, objProtect[g].x, objProtect[g].y, 80, 80);
-			}
-			if (objProjectile[m].x < objProtect[g].x + 80 && objProjectile[m].x + 5 > objProtect[g].x && objProjectile[m].y < objProtect[g].y + 80 && !objProjectile[m].touch && objProtect[g].life) {
-				objProjectile[m].touch = true;
-				objProtect[g].hp -= 1;
-				if (objProtect[g].hp <= 0) {
-					objProtect[g].life = false;
-				}
-			}
-		}
-		if (!objProtect[g].life) {
-			protectDead += 1;
-		}
-		if (protectDead === 2) {
-			protectAlive = false;
-		}
-	}
 	if (drawPowerup) {
 		if (whatPower <= 20) {
 			scene.drawImage(capsMachineGun, xCaps, yCaps, capsMachineGun.width, capsMachineGun.height);
@@ -337,9 +276,6 @@ inGame = function () {
 	}
 	for (j = 0; j < objInvaders.length; j += 1) {
 		if (pattern[j] <= 0) {
-			objInvaders[j].life = false;
-		}
-		if (!objInvaders[j].life) {
 			youWin += 1;
 		}
 		if (youWin === 91) {
@@ -348,40 +284,29 @@ inGame = function () {
 			return;
 		}
 		if (objInvaders[j].life) {
-			if (app[j] === 2) {
+			if (app[j] >= 2) {
 				scene.drawImage(invaders2, objInvaders[j].x, objInvaders[j].y, 40, 40);
 			} else if (app[j] === 1) {
 				scene.drawImage(invaders, objInvaders[j].x, objInvaders[j].y, 40, 40);
 			}
 		}
+		if (objInvaders[j].y + 40 > yShip - 20 && pattern[j] > 0) {
+			location.reload();
+		}
 		if (800 - objInvaders[j].x - 40 < 10 && objInvaders[j].life) {
-			for (w = 0; w < objInvaders.length; w += 1) {
-				if (!pause && moveAnim) {
-					if (!protectAlive) {
-						objInvaders[w].y += 5;
-					}
-				}
-				if (objInvaders[w].y + 40 > yShip - 20 && objInvaders[w].life) {
-					location.reload();
-				}
-			}
 			revx = false;
 		} else if (objInvaders[j].x < 10 && objInvaders[j].life) {
-			for (w = 0; w < objInvaders.length; w += 1) {
-				if (!pause && moveAnim) {
-					if (!protectAlive) {
-						objInvaders[w].y += 5;
-					}
-				}
-			}
 			revx = true;
 		}
-		if (!pause && moveAnim && !protectAlive) {
+		if (!pause && moveAnim) {
 			if (revx) {
 				objInvaders[j].x += 2;
 			} else {
 				objInvaders[j].x -= 2;
 			}
+		}
+		if (march) {
+			objInvaders[whatInvader].y += 2;
 		}
 	}
 	for (m = 0; m < objProjectile.length; m += 1) {
@@ -415,7 +340,7 @@ inGame = function () {
 		rev = true;
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
-		setTimeout(reloadShootShip, 100);
+		setTimeout(reloadShoot, 100);
 	} else if (keyState[70] && reload && !pause && moveAnim && machineGun && !doubleFire && !shotgun) {
 		angle = Math.random() * 2.35 + 0.30;
 		xProject = xShip + 25;
@@ -426,7 +351,7 @@ inGame = function () {
 		rev = true;
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
-		setTimeout(reloadShootShip, 50);
+		setTimeout(reloadShoot, 50);
 	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && doubleFire && !shotgun) {
 		for (z = 0; z < 2; z += 1) {
 			angle = Math.PI / 2;
@@ -439,7 +364,7 @@ inGame = function () {
 			objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		}
 		reload = false;
-		setTimeout(reloadShootShip, 100);
+		setTimeout(reloadShoot, 100);
 	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire && shotgun) {
 		for (c = 0; c < 1.57; c += 0.1) {
 			angle = Math.PI / 4 + c;
@@ -458,7 +383,7 @@ inGame = function () {
 			whatPower = Math.floor(Math.random() * 100);
 		}
 		reload = false;
-		setTimeout(reloadShootShip, 500);
+		setTimeout(reloadShoot, 500);
 	}
 	if (!pause && moveAnim) {
 		ripost = Math.floor(Math.random() * 10);
@@ -471,26 +396,10 @@ inGame = function () {
 			yPasProject = Math.abs(Math.sin(angle) * 7.07);
 			touch = false;
 			rev = false;
-			if (objInvaders[who].life) {
+			if (pattern[who] > 0) {
 				objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 			}
 		}
-	}
-	if (reloadProject) {
-		for (g = 0; g < 2; g += 1) {
-			angle = Math.PI / 2;
-			xProject = objProtect[g].x + 40;
-			yProject = objProtect[g].y + 80;
-			xPasProject = Math.abs(Math.cos(angle) * 7.07);
-			yPasProject = Math.abs(Math.sin(angle) * 7.07);
-			touch = false;
-			rev = false;
-			if (objProtect[g].life) {
-				objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
-			}
-		}
-		reloadProject = false;
-		setTimeout(reloadShootInvaders, 1000);
 	}
 	if (keyState[39] && !pause) {
 		xShip += 10;
@@ -536,9 +445,6 @@ inGame = function () {
 					if (!defense) {
 						lifeShip -= 1;
 					}
-				}
-				if (protectAlive && objProjectile[m].y < 285 && objProjectile[m].rev) {
-					objProjectile[m].touch = true;
 				}
 			}
 		}
@@ -597,5 +503,4 @@ inGame = function () {
 
 setTimeout(creaInvaders, 1000);
 setTimeout(creaProjectile, 1001);
-setTimeout(creaInvadersProtect, 1002);
-setTimeout(start, 1003);
+setTimeout(start, 1002);

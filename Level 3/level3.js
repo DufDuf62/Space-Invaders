@@ -85,7 +85,7 @@ var capsShotgun = new Image();
 capsShotgun.src = "gfx/capsShotgun.png";
 capsShotgun.width = 10;
 capsShotgun.height = 5;
-var powerup, whatPower;
+var powerup, whatPower = Math.floor(Math.random() * 100);
 var xCaps = -100;
 var yCaps = -100;
 var drawPowerup = false;
@@ -455,7 +455,6 @@ inGame = function () {
 		yCaps = -100;
 		drawPowerup = false;
 		alreadyPower = true;
-		whatPower = Math.floor(Math.random() * 100);
 		if (whatPower <= 20) {
 			machineGun = true;
 			seconde = 5;
