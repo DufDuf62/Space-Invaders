@@ -16,7 +16,7 @@ ship.width = 50;
 ship.height = 50;
 var xShip = 475;
 var yShip = 725;
-var lifeShip = 2;
+var lifeShip = 20000000;
 var reload = true;
 
 //Variables Invaders
@@ -152,8 +152,8 @@ timer = function () {
 
 function souris(event) {
 	"use strict";
-	xMouse = event.clientX,
-		yMouse = event.clientY;
+	xMouse = event.clientX;
+    yMouse = event.clientY;
 }
 
 reset = function () {
@@ -282,11 +282,11 @@ inGame = function () {
 		reload = false;
 		setTimeout(reloadShoot, 100);
 	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire && aimFire) {
-		angle = 0;
+        angle = -Math.atan(((yMouse - yShip) / (xMouse - xShip)));
 		xProject = xShip + 25;
 		yProject = yShip;
-		xPasProject = -(xMouse - xShip - 500) / 10;
-		yPasProject = -(yMouse - yShip - 500) / 10;
+        xPasProject = Math.abs(Math.cos(angle) * 7.07);
+		yPasProject = Math.abs(Math.sin(angle) * 7.07);
 		touch = false;
 		rev = true;
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
@@ -358,8 +358,8 @@ inGame = function () {
 		}
 	}
 	if ((xCaps + 10 > xShip && xCaps < xShip + 50 && yCaps + 10 > yShip && yCaps + 15 > yShip && yCaps - 15 < yShip) ||
-		((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps + 10 > xShip && xCaps + 20 > xShip && xCaps < xShip)) ||
-		((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps < xShip + 50 && xCaps + 10 > xShip + 50 && xCaps - 10 < xShip + 50))) {
+            ((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps + 10 > xShip && xCaps + 20 > xShip && xCaps < xShip)) ||
+            ((yCaps < yShip + 50 && yCaps + 5 > yShip && xCaps < xShip + 50 && xCaps + 10 > xShip + 50 && xCaps - 10 < xShip + 50))) {
 		xCaps = 900;
 		yCaps = 900;
 		drawPowerup = false;
