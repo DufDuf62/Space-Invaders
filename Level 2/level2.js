@@ -18,7 +18,7 @@ ship.width = 50;
 ship.height = 50;
 var xShip = 375;
 var yShip = 900;
-var lifeShip = 2;
+var lifeShip = 5;
 var reload = true;
 
 //Variables Invaders
