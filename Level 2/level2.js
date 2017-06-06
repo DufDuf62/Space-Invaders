@@ -20,6 +20,8 @@ var xShip = 375;
 var yShip = 900;
 var lifeShip = 5;
 var reload = true;
+var autoFire = false;
+var save;
 
 //Variables Invaders
 var invaders = new Image();
@@ -326,7 +328,15 @@ inGame = function () {
 			}
 		}
 	}
-	if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire && !shotgun) {
+	if (keyState[70]) {
+		if (!autoFire) {
+			autoFire = true;
+		} else {
+			autoFire = false;
+		}
+		keyState[70] = false;
+	}
+	if (autoFire && reload && !pause && moveAnim && !machineGun && !doubleFire && !shotgun) {
 		angle = Math.PI / 2;
 		xProject = xShip + 25;
 		yProject = yShip;
@@ -337,7 +347,7 @@ inGame = function () {
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 100);
-	} else if (keyState[70] && reload && !pause && moveAnim && machineGun && !doubleFire && !shotgun) {
+	} else if (autoFire && reload && !pause && moveAnim && machineGun && !doubleFire && !shotgun) {
 		angle = Math.random() * 2.35 + 0.30;
 		xProject = xShip + 25;
 		yProject = yShip;
@@ -348,7 +358,7 @@ inGame = function () {
 		objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 		reload = false;
 		setTimeout(reloadShoot, 50);
-	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && doubleFire && !shotgun) {
+	} else if (autoFire && reload && !pause && moveAnim && !machineGun && doubleFire && !shotgun) {
 		for (z = 0; z < 2; z += 1) {
 			angle = Math.PI / 2;
 			xProject = xShip + 9 + z * 32;
@@ -361,7 +371,7 @@ inGame = function () {
 		}
 		reload = false;
 		setTimeout(reloadShoot, 100);
-	} else if (keyState[70] && reload && !pause && moveAnim && !machineGun && !doubleFire && shotgun) {
+	} else if (autoFire && reload && !pause && moveAnim && !machineGun && !doubleFire && shotgun) {
 		for (c = 0; c < 1.57; c += 0.1) {
 			angle = Math.PI / 4 + c;
 			xProject = xShip + 25;
@@ -494,7 +504,15 @@ inGame = function () {
 		pause = false;
 		moveAnim = true;
 	}
-	play = setTimeout(inGame, 10);
+	for (m = 0; m < objProjectile.length; m += 1) {
+		if (objProjectile[m].touch) {
+			save = objProjectile[objProjectile.length - 1];
+			objProjectile[objProjectile.length - 1] = objProjectile[m];
+			objProjectile[m] = save;
+			objProjectile.pop();
+		}
+	}
+	play = setTimeout(inGame, 15);
 };
 
 setTimeout(creaInvaders, 1000);
