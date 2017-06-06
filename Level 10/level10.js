@@ -9,7 +9,9 @@ var creaCircleInvaders;
 var reloadShoot;
 var reloadShootBoss;
 var reset;
+var resetBoss;
 var timer;
+var timerBoss;
 var start;
 var end;
 
@@ -67,6 +69,9 @@ var yBoss = 20;
 var dead = false;
 var lifeBoss = 50;
 var reloadBoss = true;
+var shotgunBoss = false;
+var powerupBoss, whatPowerBoss;
+var alreadyPowerBoss = false;
 
 //Variables Projectile
 var projectileInvImg = new Image();
@@ -114,10 +119,13 @@ var freeMove = false;
 var shotgun = false;
 var shotgunShoot;
 
-//Variables Timer
+//Variables Timers
 var seconde;
 var compte;
 var clock;
+var secondeBoss;
+var compteBoss;
+var clockBoss;
 
 //Variables structure du code
 var j, m, w, z, c, f, b;
@@ -141,7 +149,7 @@ creaInvaders = function () {
 	};
 	for (k = 0; k < 7; k += 1) {
 		for (l = 0; l < 13; l += 1) {
-			xInvader = l * 50 + 20;
+			xInvader = l * 50 + 80;
 			yInvader = k * 50 + 10;
 			life = true;
 			march = false;
@@ -227,6 +235,30 @@ timer = function () {
 			clock = false;
 		}
 	}
+};
+
+timerBoss = function () {
+	"use strict";
+	if (clockBoss) {
+		if (!pause) {
+			secondeBoss -= 1;
+		}
+		compteBoss = setTimeout(timerBoss, 1000);
+		if (secondeBoss === 0) {
+			powerupBoss = Math.floor((Math.random() * 100) + 1);
+			resetBoss();
+			clockBoss = false;
+		}
+	}
+};
+
+resetBoss = function () {
+	"use strict";
+	if (shotgunBoss) {
+		shotgunBoss = false;
+	}
+	alreadyPowerBoss = false;
+	whatPowerBoss = Math.floor(Math.random() * 100);
 };
 
 reset = function () {
@@ -413,6 +445,16 @@ inGame = function () {
 			}
 		}
 	}
+	if (revx && !pause) {
+		xBoss += 2;
+	} else if (!revx && !pause) {
+		xBoss -= 2;
+	}
+	if (xBoss + 150 > 800) {
+		revx = false;
+	} else if (xBoss - 20 < 0) {
+		revx = true;
+	}
 	for (m = 0; m < objProjectile.length; m += 1) {
 		if (!objProjectile[m].touch) {
 			if (!objProjectile[m].rev) {
@@ -513,7 +555,49 @@ inGame = function () {
 			}
 		}
 	}
-    if (!pause && moveAnim && reloadBoss) {
+	if (!pause && moveAnim && reloadBoss && !shotgunBoss) {
+		for (b = 0; b < 5; b += 1) {
+            if (b === 0) {
+				angle = Math.PI / 2 + 0.2;
+				xProject = xBoss + 80;
+				yProject = yBoss + 130;
+				xPasProject = Math.cos(angle) * 7.07;
+				yPasProject = Math.sin(angle) * 7.07;
+				touch = false;
+				rev = false;
+				if (!dead) {
+				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+				}
+            }
+            if (b === 1) {
+				angle = Math.PI / 2;
+				xProject = xBoss + 80;
+				yProject = yBoss + 130;
+				xPasProject = Math.cos(angle) * 7.07;
+				yPasProject = Math.sin(angle) * 7.07;
+				touch = false;
+				rev = false;
+				if (!dead) {
+				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+				}
+            }
+            if (b === 2) {
+				angle = Math.PI / 2 - 0.2;
+				xProject = xBoss + 80;
+				yProject = yBoss + 130;
+				xPasProject = Math.cos(angle) * 7.07;
+				yPasProject = Math.sin(angle) * 7.07;
+				touch = false;
+				rev = false;
+				if (!dead) {
+				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+				}
+            }
+		}
+		reloadBoss = false;
+        setTimeout(reloadShootBoss, 600);
+	}
+    if (!pause && moveAnim && reloadBoss && shotgunBoss) {
         for (b = 0; b < 5; b += 1) {
             if (b === 0) {
 				angle = Math.PI / 2 + 0.4;
@@ -685,6 +769,17 @@ inGame = function () {
 			clock = true;
 			timer();
 		}
+	}
+	powerupBoss = Math.floor(Math.random() * 10000);
+	if (powerupBoss === 1 && !alreadyPowerBoss) {
+		whatPowerBoss = Math.floor(Math.random() * 100);
+		if (whatPowerBoss <= 100) {
+			shotgunBoss = true;
+			secondeBoss = 5;
+			clockBoss = true;
+			timerBoss();
+		}
+		alreadyPowerBoss = true;
 	}
 	if (yCaps > 800) {
 		powerup = Math.floor(Math.random() * 100);
