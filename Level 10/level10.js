@@ -8,12 +8,14 @@ var creaProjectile;
 var creaCircleInvaders;
 var reloadShoot;
 var reloadShootBoss;
+var reloadShootCircle;
 var reset;
 var resetBoss;
 var timer;
 var timerBoss;
 var start;
 var end;
+var circleHelp;
 
 //Variables Ship
 var ship = new Image();
@@ -39,10 +41,14 @@ invaders2.height = 40;
 var objInvaders = [];
 var xInvader, yInvader, life, march;
 var objCircle = [];
-var xCircle, yCircle, lifeCircle, angleCircle, revCircle, nbLife, appCircle;
+var xCircle, yCircle, lifeCircle, angleCircle, revCircle, nbLife, appCircle, help;
+var CircleInvader;
 var revx = false;
 var who;
 var ripost;
+var allDead = false;
+var incrementAngle = 0;
+var reloadCircle = true;
 var pattern = [10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,
 			   10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,
 			   10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,
@@ -70,6 +76,8 @@ var dead = false;
 var lifeBoss = 50;
 var reloadBoss = true;
 var shotgunBoss = false;
+var invincibleBoss = false;
+var forwardBoss = false;
 var powerupBoss, whatPowerBoss;
 var alreadyPowerBoss = false;
 
@@ -160,7 +168,7 @@ creaInvaders = function () {
 
 creaCircleInvaders = function () {
 	"use strict";
-	var CircleInvader = function (xCircle, yCircle, lifeCircle, angleCircle, revCircle, nbLife, appCircle) {
+	CircleInvader = function (xCircle, yCircle, lifeCircle, angleCircle, revCircle, nbLife, appCircle, help) {
 		this.x = xCircle;
 		this.y = yCircle;
 		this.life = lifeCircle;
@@ -168,6 +176,7 @@ creaCircleInvaders = function () {
 		this.rev = revCircle;
 		this.nbLife = nbLife;
 		this.app = appCircle;
+		this.help = help;
 	};
 	for (f = 0; f <= 2 * Math.PI; f += 0.2) {
 		xCircle = Math.cos(f) * 700 + 400;
@@ -177,7 +186,8 @@ creaCircleInvaders = function () {
 		revCircle = true;
 		nbLife = 2;
 		appCircle = 2;
-		objCircle.push(new CircleInvader(xCircle, yCircle, lifeCircle, angleCircle, revCircle, nbLife, appCircle));
+		help = false;
+		objCircle.push(new CircleInvader(xCircle, yCircle, lifeCircle, angleCircle, revCircle, nbLife, appCircle, help));
 	}
 	for (f = 0; f <= 2 * Math.PI; f += 0.2) {
 		xCircle = Math.cos(f) * 750 + 400;
@@ -187,7 +197,8 @@ creaCircleInvaders = function () {
 		revCircle = false;
 		nbLife = 1;
 		appCircle = 1;
-		objCircle.push(new CircleInvader(xCircle, yCircle, lifeCircle, angleCircle, revCircle, appCircle));
+		help = false;
+		objCircle.push(new CircleInvader(xCircle, yCircle, lifeCircle, angleCircle, revCircle, appCircle, help));
 	}
 };
 
@@ -218,8 +229,13 @@ reloadShoot = function () {
 };
 
 reloadShootBoss = function () {
-    "use strict";
-    reloadBoss = true;
+	"use strict";
+	reloadBoss = true;
+};
+
+reloadShootCircle = function () {
+	"use strict";
+	reloadCircle = true;
 };
 
 timer = function () {
@@ -257,6 +273,13 @@ resetBoss = function () {
 	if (shotgunBoss) {
 		shotgunBoss = false;
 	}
+	if (invincibleBoss) {
+		invincibleBoss = false;
+		bossImg.src = "gfx/bossImg.png";
+	}
+	if (forwardBoss) {
+		forwardBoss = false;
+	}
 	alreadyPowerBoss = false;
 	whatPowerBoss = Math.floor(Math.random() * 100);
 };
@@ -285,9 +308,9 @@ start = function () {
 	"use strict";
 	scene.clearRect(0, 0, 800, 800);
 	scene.drawImage(ship, xShip, yShip, ship.width, ship.height);
-    if (!dead) {
-        scene.drawImage(bossImg, xBoss, yBoss, bossImg.width, bossImg.height);
-    }
+	if (!dead) {
+		scene.drawImage(bossImg, xBoss, yBoss, bossImg.width, bossImg.height);
+	}
 	for (j = 0; j < objInvaders.length; j += 1) {
 		if (objInvaders[j].life) {
 			if (app[j] >= 2) {
@@ -359,16 +382,32 @@ end = function () {
 	endGame = setTimeout(end, 10);
 };
 
+circleHelp = function () {
+	"use strict";
+	for (f = -0.4; f < Math.PI / 3 - 0.4; f += 0.2) {
+		xCircle = Math.cos(f) * 700 + 400;
+		yCircle = Math.sin(f) * 700 - 320;
+		lifeCircle = true;
+		angleCircle = f;
+		revCircle = true;
+		nbLife = 2;
+		appCircle = 2;
+		help = true;
+		objCircle.push(new CircleInvader(xCircle, yCircle, lifeCircle, angleCircle, revCircle, nbLife, appCircle, help));
+	}
+};
+
 inGame = function () {
 	"use strict";
 	scene.clearRect(0, 0, 800, 800);
 	scene.drawImage(ship, xShip, yShip, ship.width, ship.height);
-    if (!dead) {
-        scene.drawImage(bossImg, xBoss, yBoss, bossImg.width, bossImg.height);
-    } else {
-        end();
-        clock = false;
-    }
+	youWin = 0;
+	if (!dead) {
+		scene.drawImage(bossImg, xBoss, yBoss, bossImg.width, bossImg.height);
+	} else {
+		end();
+		clock = false;
+	}
 	youWin = 0;
 	if (drawPowerup) {
 		if (whatPower <= 20) {
@@ -397,31 +436,72 @@ inGame = function () {
 	}
 	if (!pause) {
 		for (f = 0; f < objCircle.length; f += 1) {
-			if (objCircle[f].rev) {
-				objCircle[f].angle += 0.005;
-				objCircle[f].x = Math.cos(objCircle[f].angle) * 700 + 400;
-				objCircle[f].y = Math.sin(objCircle[f].angle) * 700 - 360;
+			if (!objCircle[f].help) {
+				if (objCircle[f].rev) {
+					objCircle[f].angle += 0.005;
+					objCircle[f].x = Math.cos(objCircle[f].angle) * 700 + 400;
+					objCircle[f].y = Math.sin(objCircle[f].angle) * 700 - 360;
+				} else {
+					objCircle[f].angle -= 0.005;
+					objCircle[f].x = Math.cos(objCircle[f].angle) * 750 + 400;
+					objCircle[f].y = Math.sin(objCircle[f].angle) * 750 - 360;
+				}
+				ripost = Math.floor(Math.random() * 50);
+				if (ripost === 1 && moveAnim) {
+					angle = Math.PI / 2;
+					xProject = objCircle[f].x + 20;
+					yProject = objCircle[f].y + 40;
+					xPasProject = Math.abs(Math.cos(angle) * 7.07);
+					yPasProject = Math.abs(Math.sin(angle) * 7.07);
+					touch = false;
+					rev = false;
+					if (objCircle[f].life && objCircle[f].x + 20 < 800 && objCircle[f].x + 20 > 0 && objCircle[f].y > 0) {
+						objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					}
+				}
 			} else {
-				objCircle[f].angle -= 0.005;
-				objCircle[f].x = Math.cos(objCircle[f].angle) * 750 + 400;
-				objCircle[f].y = Math.sin(objCircle[f].angle) * 750 - 360;
-			}
-			ripost = Math.floor(Math.random() * 50);
-			if (ripost === 1 && moveAnim) {
-				angle = Math.PI / 2;
-				xProject = objCircle[f].x + 20;
-				yProject = objCircle[f].y + 40;
-				xPasProject = Math.abs(Math.cos(angle) * 7.07);
-				yPasProject = Math.abs(Math.sin(angle) * 7.07);
-				touch = false;
-				rev = false;
-				if (objCircle[f].life && objCircle[f].x + 20 < 800 && objCircle[f].x + 20 > 0 && objCircle[f].y > 0) {
-					objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+				if (!pause) {
+					if (objCircle[f].rev) {
+						objCircle[f].angle -= 0.02;
+						objCircle[f].x = Math.cos(objCircle[f].angle) * 700 + 400;
+						objCircle[f].y = Math.sin(objCircle[f].angle) * 700 - 320;
+					} else {
+						objCircle[f].angle += 0.02;
+						objCircle[f].x = Math.cos(objCircle[f].angle) * 700 + 400;
+						objCircle[f].y = Math.sin(objCircle[f].angle) * 700 - 170;
+					}
+					if (incrementAngle >= 0.02) {
+						objCircle[f].life = false;
+						incrementAngle = 0;
+					}
+				}
+				if (!pause && moveAnim) {
+					angle = Math.PI / 2;
+					xProject = objCircle[f].x + 20;
+					yProject = objCircle[f].y + 40;
+					xPasProject = Math.cos(angle) * 7.07;
+					yPasProject = Math.sin(angle) * 7.07;
+					touch = false;
+					rev = false;
+					if (objCircle[f].life && objCircle[f].x + 20 > 0 && objCircle[f].x + 20 < 800 && objCircle[f].y > 0) {
+						objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					}
 				}
 			}
 		}
+		reloadCircle = false;
+		setTimeout(reloadShootCircle, 175);
+		incrementAngle += 0.00002;
 	}
 	for (j = 0; j < objInvaders.length; j += 1) {
+		objInvaders[j].life = false;
+		pattern[j] = 0;
+		if (pattern[j] <= 0) {
+			youWin += 1;
+		}
+		if (youWin === 91) {
+			allDead = true;
+		}
 		if (objInvaders[j].life) {
 			if (app[j] >= 2) {
 				scene.drawImage(invaders2, objInvaders[j].x, objInvaders[j].y, 40, 40);
@@ -445,15 +525,37 @@ inGame = function () {
 			}
 		}
 	}
-	if (revx && !pause) {
-		xBoss += 2;
-	} else if (!revx && !pause) {
-		xBoss -= 2;
-	}
-	if (xBoss + 150 > 800) {
-		revx = false;
-	} else if (xBoss - 20 < 0) {
-		revx = true;
+	if (!allDead) {
+		if (revx && !pause) {
+			xBoss += 2;
+		} else if (!revx && !pause) {
+			xBoss -= 2;
+		}
+		if (xBoss + 150 > 800) {
+			revx = false;
+		} else if (xBoss - 20 < 0) {
+			revx = true;
+		}
+	} else if (allDead && !forwardBoss) {
+		if (xBoss - xShip + 55 < -2) {
+			xBoss += 2.5;
+		} else if (xBoss - xShip + 55 > 2) {
+			xBoss -= 2.5;
+		}
+		if (yBoss > 20) {
+			yBoss -= 1;
+		}
+	} else if (allDead && forwardBoss) {
+		if (xBoss - xShip + 55 < -2) {
+			xBoss += 2.5;
+		} else if (xBoss - xShip + 55 > 2) {
+			xBoss -= 2.5;
+		}
+		if (yBoss <= 500) {
+			yBoss += 1;
+		} else if (yBoss >= 500) {
+			resetBoss();
+		}
 	}
 	for (m = 0; m < objProjectile.length; m += 1) {
 		if (!objProjectile[m].touch) {
@@ -555,9 +657,23 @@ inGame = function () {
 			}
 		}
 	}
-	if (!pause && moveAnim && reloadBoss && !shotgunBoss) {
-		for (b = 0; b < 5; b += 1) {
-            if (b === 0) {
+	if (!pause && moveAnim && reloadBoss && !shotgunBoss && !allDead) {
+		angle = Math.PI / 2;
+		xProject = xBoss + 80;
+		yProject = yBoss + 130;
+		xPasProject = Math.cos(angle) * 7.07;
+		yPasProject = Math.sin(angle) * 7.07;
+		touch = false;
+		rev = false;
+		if (!dead) {
+			objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+		}
+		reloadBoss = false;
+		setTimeout(reloadShootBoss, 500);
+	}
+	if (!pause && moveAnim && reloadBoss && !shotgunBoss && allDead) {
+		for (b = 0; b < 3; b += 1) {
+			if (b === 0) {
 				angle = Math.PI / 2 + 0.2;
 				xProject = xBoss + 80;
 				yProject = yBoss + 130;
@@ -566,10 +682,10 @@ inGame = function () {
 				touch = false;
 				rev = false;
 				if (!dead) {
-				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 				}
-            }
-            if (b === 1) {
+			}
+			if (b === 1) {
 				angle = Math.PI / 2;
 				xProject = xBoss + 80;
 				yProject = yBoss + 130;
@@ -578,10 +694,10 @@ inGame = function () {
 				touch = false;
 				rev = false;
 				if (!dead) {
-				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 				}
-            }
-            if (b === 2) {
+			}
+			if (b === 2) {
 				angle = Math.PI / 2 - 0.2;
 				xProject = xBoss + 80;
 				yProject = yBoss + 130;
@@ -590,16 +706,16 @@ inGame = function () {
 				touch = false;
 				rev = false;
 				if (!dead) {
-				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 				}
-            }
+			}
 		}
 		reloadBoss = false;
-        setTimeout(reloadShootBoss, 600);
+		setTimeout(reloadShootBoss, 600);
 	}
-    if (!pause && moveAnim && reloadBoss && shotgunBoss) {
-        for (b = 0; b < 5; b += 1) {
-            if (b === 0) {
+	if (!pause && moveAnim && reloadBoss && shotgunBoss && allDead) {
+		for (b = 0; b < 5; b += 1) {
+			if (b === 0) {
 				angle = Math.PI / 2 + 0.4;
 				xProject = xBoss + 80;
 				yProject = yBoss + 130;
@@ -608,10 +724,10 @@ inGame = function () {
 				touch = false;
 				rev = false;
 				if (!dead) {
-				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 				}
-            }
-            if (b === 1) {
+			}
+			if (b === 1) {
 				angle = Math.PI / 2 + 0.2;
 				xProject = xBoss + 80;
 				yProject = yBoss + 130;
@@ -620,10 +736,10 @@ inGame = function () {
 				touch = false;
 				rev = false;
 				if (!dead) {
-				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 				}
-            }
-            if (b === 2) {
+			}
+			if (b === 2) {
 				angle = Math.PI / 2 - 0.2;
 				xProject = xBoss + 80;
 				yProject = yBoss + 130;
@@ -632,11 +748,11 @@ inGame = function () {
 				touch = false;
 				rev = false;
 				if (!dead) {
-				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 				}
-            }
-            if (b === 3) {
-                angle = Math.PI / 2 - 0.4;
+			}
+			if (b === 3) {
+				angle = Math.PI / 2 - 0.4;
 				xProject = xBoss + 80;
 				yProject = yBoss + 130;
 				xPasProject = Math.cos(angle) * 7.07;
@@ -644,11 +760,11 @@ inGame = function () {
 				touch = false;
 				rev = false;
 				if (!dead) {
-				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 				}
-            }
-            if (b === 4) {
-                angle = Math.PI / 2;
+			}
+			if (b === 4) {
+				angle = Math.PI / 2;
 				xProject = xBoss + 80;
 				yProject = yBoss + 130;
 				xPasProject = Math.cos(angle) * 7.07;
@@ -656,13 +772,13 @@ inGame = function () {
 				touch = false;
 				rev = false;
 				if (!dead) {
-				    objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
+					objProjectile.push(new Projectiles(xProject, yProject, xPasProject, yPasProject, angle, touch, rev));
 				}
-            }
-        }
-        reloadBoss = false;
-        setTimeout(reloadShootBoss, 600);
-    }
+			}
+		}
+		reloadBoss = false;
+		setTimeout(reloadShootBoss, 600);
+	}
 	if (keyState[39] && !pause) {
 		xShip += 10;
 	} else if (keyState[37] && !pause) {
@@ -708,13 +824,15 @@ inGame = function () {
 						lifeShip -= 1;
 					}
 				}
-                if (objProjectile[m].rev && objProjectile[m].x + 2 > xBoss + 20 && objProjectile[m].x < xBoss + 140 && objProjectile[m].y < yBoss + 130 && objProjectile[m].y + 10 > yBoss + 130 && objProjectile[m].y - 10 < yBoss + 130) {
-                    lifeBoss -= 1;
-                    objProjectile[m].touch = true;
-                    if (lifeBoss <= 0) {
-                        dead = true;
-                    }
-                }
+				if (objProjectile[m].rev && objProjectile[m].x + 2 > xBoss + 20 && objProjectile[m].x < xBoss + 140 && objProjectile[m].y < yBoss + 130 && objProjectile[m].y + 10 > yBoss + 130 && objProjectile[m].y - 10 < yBoss + 130) {
+					if (allDead) {
+						lifeBoss -= 1;
+					}
+					objProjectile[m].touch = true;
+					if (lifeBoss <= 0) {
+						dead = true;
+					}
+				}
 			}
 		}
 	}
@@ -770,16 +888,29 @@ inGame = function () {
 			timer();
 		}
 	}
-	powerupBoss = Math.floor(Math.random() * 10000);
-	if (powerupBoss === 1 && !alreadyPowerBoss) {
-		whatPowerBoss = Math.floor(Math.random() * 100);
-		if (whatPowerBoss <= 100) {
-			shotgunBoss = true;
-			secondeBoss = 5;
-			clockBoss = true;
-			timerBoss();
+	if (allDead) {
+		powerupBoss = Math.floor(Math.random() * 1000);
+		if (powerupBoss === 1 && !alreadyPowerBoss) {
+			whatPowerBoss = Math.floor(Math.random() * 100);
+			if (whatPowerBoss <= 25) {
+				shotgunBoss = true;
+				secondeBoss = 5;
+				clockBoss = true;
+				timerBoss();
+			} else if (whatPowerBoss > 25 && whatPowerBoss <= 50) {
+				invincibleBoss = true;
+				bossImg.src = "gfx/bossProtectImg.png";
+				secondeBoss = 10;
+				clockBoss = true;
+				timerBoss();
+			} else if (whatPowerBoss > 50 && whatPowerBoss <= 75) {
+				forwardBoss = true;
+			} else if (whatPowerBoss > 75) {
+				circleHelp();
+				resetBoss();
+			}
+			alreadyPowerBoss = true;
 		}
-		alreadyPowerBoss = true;
 	}
 	if (yCaps > 800) {
 		powerup = Math.floor(Math.random() * 100);
